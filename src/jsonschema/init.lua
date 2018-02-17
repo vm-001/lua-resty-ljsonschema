@@ -180,7 +180,7 @@ local function debug_dump(self, prefix, err)
 end
 
 function codectx_mt:as_func(name, ...)
-  local loader, err = load(self:_get_loader(), 'jsonschema:' .. (name or 'anonymous'))
+  local loader, err = load(self:as_string(), 'jsonschema:' .. (name or 'anonymous'))
   if DEBUG then
     debug_dump(self, loader and "SUCCESS" or "FAILED", err)
   end
