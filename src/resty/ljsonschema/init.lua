@@ -7,8 +7,7 @@ local unpack = unpack or table.unpack
 local sformat = string.format
 local mmax, mmodf = math.max, math.modf
 local tconcat = table.concat
-local coro_wrap = coroutine.wrap
-local coro_yield = coroutine.yield
+local insert = table.insert
 local DEBUG = os and os.getenv and os.getenv('DEBUG') == '1'
 
 local default_null = nil        -- default null token
@@ -117,53 +116,46 @@ function codectx_mt:stmt(...)
   self._body[#self._body+1] = '\n'
 end
 
--- load doesn't like at all empty string, but sometimes it is easier to add
--- some in the chunk buffer
-local function yield_chunk(chunk)
-  if chunk and chunk ~= '' then
-    coro_yield(chunk)
-  end
-end
-
 function codectx_mt:_generate()
+  local res = {}
   local indent = ''
   if self._root == self then
     for _, stmt in ipairs(self._preface) do
-      yield_chunk(indent)
+      insert(res, indent)
       if getmetatable(stmt) == codectx_mt then
-        stmt:_generate()
+        insert(res, stmt:_generate())
       else
-        yield_chunk(stmt)
+        insert(res, stmt)
       end
     end
   else
-    coro_yield('function(')
+    insert(res, 'function(')
     for i=1, self._nparams do
-      yield_chunk('p_' .. i)
-      if i ~= self._nparams then yield_chunk(', ') end
+      insert(res, 'p_' .. i)
+      if i ~= self._nparams then insert(res, ', ') end
     end
-    yield_chunk(')\n')
+    insert(res, ')\n')
     indent = string.rep('  ', self._idx)
   end
 
   for _, stmt in ipairs(self._body) do
-    yield_chunk(indent)
+    insert(res, indent)
     if getmetatable(stmt) == codectx_mt then
-      stmt:_generate()
+      insert(res, stmt:_generate())
     else
-      yield_chunk(stmt)
+      insert(res, stmt)
     end
   end
 
   if self._root ~= self then
-    yield_chunk('end')
+    insert(res, 'end')
   end
+
+  return tconcat(res)
 end
 
 function codectx_mt:_get_loader()
-  return coro_wrap(function()
-    self:_generate()
-  end)
+  return self:_generate()
 end
 
 function codectx_mt:as_string()
