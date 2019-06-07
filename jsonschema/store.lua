@@ -136,7 +136,7 @@ function store_mt:fetch(uri)
   -- schema not yet known
   schema = self.resolver(uri)
   if not schema then
-    error('faild to fetch schema for: ' .. uri)
+    error('failed to fetch schema for: ' .. uri)
   end
   if not schema.id then
     schema.id = uri
