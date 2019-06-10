@@ -184,6 +184,8 @@ function codectx_mt:as_func(name, ...)
       return sformat('\n%04d: ', line)
     end))
     print('------------------------------')
+    print('SCHEMA input:', require("pl.pretty").write(self._DEBUG_SCHEMA))
+    print('------------------------------')
   end
   error(err)
 end
@@ -221,6 +223,9 @@ local function codectx(schema, options)
     _external_resolver = options.external_resolver,
   }, codectx_mt)
   self._root = self
+  if DEBUG then
+    self._DEBUG_SCHEMA = schema
+  end
   return self
 end
 
