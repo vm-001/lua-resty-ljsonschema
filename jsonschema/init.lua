@@ -70,13 +70,6 @@ function codectx_mt:uservalue(val)
   return sformat('uservalues[%d]', slot)
 end
 
-
-
-
-
-
-local function q(s) return sformat('%q', s) end
-
 function codectx_mt:validator(path, schema)
   local ref = self._schema:child(path)
   local resolved = ref:resolve()
@@ -400,7 +393,7 @@ generate_validator = function(ctx, schema)
       ctx:stmt(          '    if propvalue ~= nil then')
       ctx:stmt(sformat(  '      local ok, err = %s(propvalue)', propvalidator))
       ctx:stmt(          '      if not ok then')
-      ctx:stmt(sformat(  "        return false, 'property %q validation failed: ' .. err", prop))
+      ctx:stmt(sformat(  "        return false, 'property ' .. %q .. ' validation failed: ' .. err", prop))
       ctx:stmt(          '      end')
 
       if dependencies[prop] then
@@ -409,7 +402,7 @@ generate_validator = function(ctx, schema)
           -- dependency is a list of properties
           for _, depprop in ipairs(d) do
             ctx:stmt(sformat('      if %s[%q] == nil then', ctx:param(1), depprop))
-            ctx:stmt(sformat("        return false, 'property %q is required when %q is set'", depprop, prop))
+            ctx:stmt(sformat("        return false, 'property ' .. %q .. ' is required when ' .. %q .. ' is set'", depprop, prop))
             ctx:stmt(        '      end')
           end
         else
@@ -418,14 +411,14 @@ generate_validator = function(ctx, schema)
           -- ok and err are already defined in this block
           ctx:stmt(sformat('      ok, err = %s(%s)', depvalidator, ctx:param(1)))
           ctx:stmt(        '      if not ok then')
-          ctx:stmt(sformat("        return false, 'failed to validate dependent schema for %q: ' .. err", prop))
+          ctx:stmt(sformat("        return false, 'failed to validate dependent schema for ' .. %q .. ': ' .. err", prop))
           ctx:stmt(        '      end')
         end
       end
 
       if required[prop] then
         ctx:stmt(        '    else')
-        ctx:stmt(sformat("      return false, 'property %q is required'", prop))
+        ctx:stmt(sformat("      return false, 'property ' .. %q .. ' is required'", prop))
         required[prop] = nil
       end
       ctx:stmt(          '    end') -- if prop
@@ -435,7 +428,7 @@ generate_validator = function(ctx, schema)
     -- check the rest of required fields
     for prop, _ in pairs(required) do
       ctx:stmt(sformat('  if %s[%q] == nil then', ctx:param(1), prop))
-      ctx:stmt(sformat("      return false, 'property %q is required'", prop))
+      ctx:stmt(sformat("      return false, 'property ' .. %q .. ' is required'", prop))
       ctx:stmt(        '  end')
     end
 
@@ -446,7 +439,7 @@ generate_validator = function(ctx, schema)
           -- dependencies are a list of properties
           for _, depprop in ipairs(d) do
             ctx:stmt(sformat('  if %s[%q] ~= nil and %s[%q] == nil then', ctx:param(1), prop, ctx:param(1), depprop))
-            ctx:stmt(sformat("    return false, 'property %q is required when %q is set'", depprop, prop))
+            ctx:stmt(sformat("    return false, 'property ' .. %q .. ' is required when ' .. %q .. ' is set'", depprop, prop))
             ctx:stmt(        '  end')
           end
         else
@@ -455,7 +448,7 @@ generate_validator = function(ctx, schema)
           ctx:stmt(sformat('  if %s[%q] ~= nil then', ctx:param(1), prop))
           ctx:stmt(sformat('    local ok, err = %s(%s)', depvalidator, ctx:param(1)))
           ctx:stmt(        '    if not ok then')
-          ctx:stmt(sformat("      return false, 'failed to validate dependent schema for %q: ' .. err", prop))
+          ctx:stmt(sformat("      return false, 'failed to validate dependent schema for ' .. %q .. ': ' .. err", prop))
           ctx:stmt(        '    end')
           ctx:stmt(        '  end')
         end
@@ -493,7 +486,7 @@ generate_validator = function(ctx, schema)
           ctx:stmt(sformat('    if %s(prop, %q) then', ctx:libfunc('custom.match_pattern'), patt))
           ctx:stmt(sformat('      local ok, err = %s(value)', validator))
           ctx:stmt(        '      if not ok then')
-          ctx:stmt(sformat("        return false, 'failed to validate '..prop..' (matching %q): '..err", patt))
+          ctx:stmt(sformat("        return false, 'failed to validate '..prop..' (matching ' .. %q .. '): '..err", patt))
           ctx:stmt(        '      end')
           ctx:stmt(        '      matched = true')
           ctx:stmt(        '    end')
@@ -516,7 +509,7 @@ generate_validator = function(ctx, schema)
           ctx:stmt(sformat('    if %s(prop, %q) then', ctx:libfunc('custom.match_pattern'), patt))
           ctx:stmt(sformat('      local ok, err = %s(value)', validator))
           ctx:stmt(        '      if not ok then')
-          ctx:stmt(sformat("        return false, 'failed to validate '..prop..' (matching %q): '..err", patt))
+          ctx:stmt(sformat("        return false, 'failed to validate '..prop..' (matching ' .. %q .. '): '..err", patt))
           ctx:stmt(        '      end')
           ctx:stmt(        '    end')
         end
@@ -663,7 +656,7 @@ generate_validator = function(ctx, schema)
     end
     if schema.pattern then
       ctx:stmt(sformat('  if not %s(%s, %q) then', ctx:libfunc('custom.match_pattern'), ctx:param(1), schema.pattern))
-      ctx:stmt(sformat('    return false, %s([[failed to match pattern %q with %%q]], %s)', ctx:libfunc('string.format'), schema.pattern, ctx:param(1)))
+      ctx:stmt(sformat('    return false, %s([[failed to match pattern ]] .. %q .. [[ with %%q]], %s)', ctx:libfunc('string.format'), schema.pattern, ctx:param(1)))
       ctx:stmt(        '  end')
     end
     ctx:stmt('end') -- if string
