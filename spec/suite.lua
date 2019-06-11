@@ -85,7 +85,7 @@ local supported = {
 local function readjson(path)
   if path:match('%.json$') then
     local f = assert(io.open(path))
-    local body = json.decode(assert(f:read('*a')))
+    local body = json.decode((assert(f:read('*a'))))
     f:close()
     return body
   elseif path:match('%.lua$') then
