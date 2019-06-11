@@ -99,6 +99,7 @@ local external_schemas = {
   ['http://localhost:1234/integer.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/integer.json'),
   ['http://localhost:1234/subSchemas.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/subSchemas.json'),
   ['http://localhost:1234/folder/folderInteger.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/folder/folderInteger.json'),
+  ['http://localhost:1234/name.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/name.json'),
 }
 
 local options = {
