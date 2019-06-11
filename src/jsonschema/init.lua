@@ -158,8 +158,27 @@ function codectx_mt:as_string()
   return table.concat(buf)
 end
 
+local function debug_dump(self, prefix, err)
+  local line=1
+  print('------------------------------')
+  print(prefix .. ' to generate validator: ', (err or ""))
+  print('generated code:')
+  print('0001: ' .. self:as_string():gsub('\n', function()
+    line = line + 1
+    return sformat('\n%04d: ', line)
+  end))
+  print('------------------------------')
+  if self._DEBUG_SCHEMA then
+    print('SCHEMA input:', require("pl.pretty").write(self._DEBUG_SCHEMA))
+    print('------------------------------')
+  end
+end
+
 function codectx_mt:as_func(name, ...)
   local loader, err = load(self:_get_loader(), 'jsonschema:' .. (name or 'anonymous'))
+  if DEBUG then
+    debug_dump(self, loader and "SUCCESS" or "FAILED", err)
+  end
   if loader then
     local validator
     validator, err = loader(self._uservalues, ...)
@@ -167,19 +186,6 @@ function codectx_mt:as_func(name, ...)
   end
 
   -- something went really wrong
-  if DEBUG then
-    local line=1
-    print('------------------------------')
-    print('FAILED to generate validator: ', err)
-    print('generated code:')
-    print('0001: ' .. self:as_string():gsub('\n', function()
-      line = line + 1
-      return sformat('\n%04d: ', line)
-    end))
-    print('------------------------------')
-    print('SCHEMA input:', require("pl.pretty").write(self._DEBUG_SCHEMA))
-    print('------------------------------')
-  end
   error(err)
 end
 
