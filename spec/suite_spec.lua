@@ -2,19 +2,7 @@
 -- https://github.com/json-schema-org/JSON-Schema-Test-Suite
 
 local json = require 'cjson'
---local lfs = require 'lfs'
 local jsonschema = require 'jsonschema'
-
-local telescope = require 'telescope'
-telescope.make_assertion('success', "%s to be a success, got error '%s'", function(ok, err) return not not ok end)
-telescope.make_assertion('failure', "a failure with error '%s', got (%s, %s)", function(exp, ok, err)
-  return not ok and err == exp
-end)
-telescope.status_labels[telescope.status_codes.err]         = '\27[31;1mE\27[0m'
-telescope.status_labels[telescope.status_codes.fail]        = '\27[31;1mF\27[0m'
-telescope.status_labels[telescope.status_codes.pass]        = '\27[32mP\27[0m'
-telescope.status_labels[telescope.status_codes.pending]     = '\27[34;1m?\27[0m'
-telescope.status_labels[telescope.status_codes.unassertive] = '\27[33;1mU\27[0m'
 
 -- the full support of JSON schema in Lua is difficult to achieve in some cases
 -- so some tests from the official test suite fail, skip them.
@@ -108,34 +96,45 @@ local options = {
   end,
 }
 
-for _, descriptor in ipairs(supported) do
-  for _, suite in ipairs(readjson(descriptor)) do
-    local skipped = blacklist[suite.description] or {}
-    if skipped ~= true then
-      describe(suite.description, function()
-        local schema = suite.schema
-        local validator
-        before(function()
-          local val, err = jsonschema.generate_validator(schema, options)
-          assert_success(val, err)
-          assert_type(val, 'function')
-          validator = val
-          package.loaded.valcode = jsonschema.generate_validator_code(schema, options)
-        end)
+describe("[JSON schema Draft 4]", function()
 
-        for _, case in ipairs(suite.tests) do
-          if not skipped[case.description] then
-            test(case.description, function()
-              if case.valid then
-                assert_true(validator(case.data))
-              else
-                assert_false(validator(case.data))
-                -- TODO: test error message?
-              end
-            end) -- test
-          end -- case skipped
-        end -- for cases
-      end) -- describe
-    end -- suite skipped
-  end -- for suite
-end -- for descriptor
+  for _, descriptor in ipairs(supported) do
+    for _, suite in ipairs(readjson(descriptor)) do
+      local skipped = blacklist[suite.description] or {}
+      if skipped ~= true then
+
+        describe(suite.description, function()
+          local schema = suite.schema
+          local validator
+
+          setup(function()
+            local val, err = assert(jsonschema.generate_validator(schema, options))
+            assert.is_function(val)
+            validator = val
+            package.loaded.valcode = jsonschema.generate_validator_code(schema, options)
+          end)
+
+          for _, case in ipairs(suite.tests) do
+            if not skipped[case.description] then
+
+              it(case.description, function()
+                if case.valid then
+                  assert.has.no.error(function()
+                    assert(validator(case.data))
+                  end)
+                else
+                  assert.has.error(function()
+                    assert(validator(case.data))
+                  end)
+                end
+              end) -- it
+
+            end -- case skipped
+          end -- for cases
+        end) -- describe
+
+      end -- suite skipped
+    end -- for suite
+  end -- for descriptor
+
+end) -- outer describe
