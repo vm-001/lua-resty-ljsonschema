@@ -3,7 +3,7 @@
 
 local json = require 'cjson'
 json.decode_array_with_array_mt(true)
-local jsonschema = require 'jsonschema'
+local jsonschema = require 'resty.ljsonschema'
 
 -- the full support of JSON schema in Lua is difficult to achieve in some cases
 -- so some tests from the official test suite fail, skip them.
