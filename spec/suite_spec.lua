@@ -9,9 +9,6 @@ local jsonschema = require 'jsonschema'
 -- so some tests from the official test suite fail, skip them.
 local blacklist = {
   -- edge cases, not supported features
-  ['regexes are not anchored by default and are case sensitive'] = {
-    ['recognized members are accounted for'] = true, -- uses a unsupported pattern construct
-  },
   ['minLength validation'] = {
     ['one supplementary Unicode code point is not long enough'] = true, -- unicode handling
   },

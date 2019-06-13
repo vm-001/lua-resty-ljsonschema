@@ -12,6 +12,7 @@ local DEBUG = os and os.getenv and os.getenv('DEBUG') == '1'
 
 local default_null = nil        -- default null token
 local default_array_mt = nil    -- default array_mt metatable
+local default_match_pattern     -- default reg-ex engine to use
 do
   local ok, cjson = pcall(require, 'cjson')
   if ok then
@@ -20,6 +21,16 @@ do
   end
 end
 
+do
+  local re_find = ((ngx or {}).re or {}).find
+  if re_find then
+    default_match_pattern = function(subject, pattern)
+      return re_find(subject, pattern, "jo")
+    end
+  else
+    default_match_pattern = string.find
+  end
+end
 
 
 --
@@ -822,7 +833,7 @@ return {
     local customlib = {
       null = custom and custom.null or default_null,
       array_mt = custom and custom.array_mt or default_array_mt,
-      match_pattern = custom and custom.match_pattern or string.find
+      match_pattern = custom and custom.match_pattern or default_match_pattern
     }
     local name = custom and custom.name
     return generate_main_validator_ctx(schema, custom):as_func(name, validatorlib, customlib)
