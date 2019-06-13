@@ -10,12 +10,17 @@ local coro_wrap = coroutine.wrap
 local coro_yield = coroutine.yield
 local DEBUG = os and os.getenv and os.getenv('DEBUG') == '1'
 
--- default null token
-local default_null = nil
+local default_null = nil        -- default null token
+local default_array_mt = nil    -- default array_mt metatable
 do
   local ok, cjson = pcall(require, 'cjson')
-  if ok then default_null = cjson.null end
+  if ok then
+    default_null = cjson.null
+    default_array_mt = cjson.array_mt
+  end
 end
+
+
 
 --
 -- Code generation
@@ -239,7 +244,7 @@ local validatorlib = {}
 --  0 for objects
 --  1 for empty object/table (these two are indistinguishable in Lua)
 --  2 for arrays
-function validatorlib.tablekind(t)
+local function tablekind_slow(t)
   local length = #t
   if length == 0 then
     if next(t) == nil then
@@ -258,6 +263,17 @@ function validatorlib.tablekind(t)
     return 0 -- mixed array/object
   end
 end
+
+
+function validatorlib.tablekind(t, array_mt)
+  if array_mt then
+    -- this is deterministic, and fast
+    return getmetatable(t) == array_mt and 2 or 0
+  end
+  -- non-deterministic, try old-fashioned slow Lua way
+  return tablekind_slow(t)
+end
+
 
 -- used for unique items in arrays (not fast at all)
 -- from: http://stackoverflow.com/questions/25922437
@@ -344,8 +360,8 @@ generate_validator = function(ctx, schema)
   -- get type informations as they will be necessary anyway
   local datatype = ctx:localvar(sformat('%s(%s)',
     ctx:libfunc('type'), ctx:param(1)))
-  local datakind = ctx:localvar(sformat('%s == "table" and %s(%s)',
-    datatype, ctx:libfunc('lib.tablekind'), ctx:param(1)))
+  local datakind = ctx:localvar(sformat('%s == "table" and %s(%s, %s)',
+    datatype, ctx:libfunc('lib.tablekind'), ctx:param(1), "custom.array_mt"))
 
   -- type check
   local tt = type(schema.type)
@@ -767,14 +783,14 @@ generate_validator = function(ctx, schema)
       local validator = ctx:validator({ 'oneOf', tostring(i-1) }, subschema)
       ctx:stmt(sformat('  if %s(%s) then', validator, ctx:param(1)))
       ctx:stmt(        '    if matched then')
-      ctx:stmt(sformat('      return false, %s("value sould match only one schema, but matches both schemas %%d and %%d", matched, %d)',
+      ctx:stmt(sformat('      return false, %s("value should match only one schema, but matches both schemas %%d and %%d", matched, %d)',
                        ctx:libfunc('string.format'), i))
       ctx:stmt(        '    end')
       ctx:stmt(        '    matched = ', tostring(i))
       ctx:stmt(        '  end')
     end
     ctx:stmt('  if not matched then')
-    ctx:stmt('    return false, "value sould match only one schema, but matches none"')
+    ctx:stmt('    return false, "value should match only one schema, but matches none"')
     ctx:stmt('  end')
     ctx:stmt('end')
   end
@@ -805,6 +821,7 @@ return {
   generate_validator = function(schema, custom)
     local customlib = {
       null = custom and custom.null or default_null,
+      array_mt = custom and custom.array_mt or default_array_mt,
       match_pattern = custom and custom.match_pattern or string.find
     }
     local name = custom and custom.name

@@ -2,6 +2,7 @@
 -- https://github.com/json-schema-org/JSON-Schema-Test-Suite
 
 local json = require 'cjson'
+json.decode_array_with_array_mt(true)
 local jsonschema = require 'jsonschema'
 
 -- the full support of JSON schema in Lua is difficult to achieve in some cases
@@ -26,8 +27,8 @@ local blacklist = {
 }
 
 local supported = {
-  'spec/extra/sanity.json',
-  'spec/extra/empty.json',
+--  'spec/extra/sanity.json',
+--  'spec/extra/empty.json',
   'spec/JSON-Schema-Test-Suite/tests/draft4/type.json',
   -- objects
   'spec/JSON-Schema-Test-Suite/tests/draft4/properties.json',
@@ -66,8 +67,8 @@ local supported = {
   'spec/JSON-Schema-Test-Suite/tests/draft4/definitions.json',
   'spec/extra/ref.json',
   -- Lua extensions
-  'spec/extra/table.json',
-  'spec/extra/function.lua',
+--  'spec/extra/table.json',
+--  'spec/extra/function.lua',
 }
 
 local function readjson(path)
@@ -103,11 +104,11 @@ describe("[JSON schema Draft 4]", function()
       local skipped = blacklist[suite.description] or {}
       if skipped ~= true then
 
-        describe(suite.description, function()
+        describe("["..descriptor.."] "..suite.description .. ":", function()
           local schema = suite.schema
           local validator
 
-          setup(function()
+          lazy_setup(function()
             local val, err = assert(jsonschema.generate_validator(schema, options))
             assert.is_function(val)
             validator = val
@@ -116,8 +117,13 @@ describe("[JSON schema Draft 4]", function()
 
           for _, case in ipairs(suite.tests) do
             if not skipped[case.description] then
-
-              it(case.description, function()
+              local prefix = ""
+              if (suite.description .. ": " .. case.description):find(
+                "--something to run ONLY--", 1, true) then
+                prefix = "#only "
+              end
+              it(prefix .. case.description, function()
+                --print("data to validate: ", require("pl.pretty").write(case.data))
                 if case.valid then
                   assert.has.no.error(function()
                     assert(validator(case.data))
