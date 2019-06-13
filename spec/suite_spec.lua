@@ -9,12 +9,6 @@ local jsonschema = require 'jsonschema'
 -- so some tests from the official test suite fail, skip them.
 local blacklist = {
   -- edge cases, not supported features
-  ['object type matches objects'] = {
-    ['an array is not an object'] = true, -- empty object/array confusion
-  },
-  ['array type matches arrays'] = {
-    ['an object is not an array'] = true, -- empty object/array confusion
-  },
   ['regexes are not anchored by default and are case sensitive'] = {
     ['recognized members are accounted for'] = true, -- uses a unsupported pattern construct
   },
