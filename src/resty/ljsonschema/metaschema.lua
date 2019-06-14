@@ -1,3 +1,6 @@
+-- returns the metaschema for draft 4
+
+local metaschema = [[
 {
     "id": "http://json-schema.org/draft-04/schema#",
     "$schema": "http://json-schema.org/draft-04/schema#",
@@ -148,3 +151,20 @@
     },
     "default": {}
 }
+]]
+
+
+
+local cjson = require "cjson"
+
+
+-- test decode with array_mt, to not change global settings
+local t = cjson.decode("[]")
+local status = getmetatable(t) == cjson.array_mt
+
+cjson.decode_array_with_array_mt(true)
+local schema = cjson.decode(metaschema)
+cjson.decode_array_with_array_mt(status)  -- restore old state
+
+return schema
+

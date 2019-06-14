@@ -1,4 +1,5 @@
 local store = require 'resty.ljsonschema.store'
+local metaschema = require 'resty.ljsonschema.metaschema'
 local tostring = tostring
 local pairs = pairs
 local ipairs = ipairs
@@ -828,7 +829,7 @@ local function generate_main_validator_ctx(schema, options)
   return ctx
 end
 
-return {
+local _M = {
   generate_validator = function(schema, custom)
     local customlib = {
       null = custom and custom.null or default_null,
@@ -843,3 +844,7 @@ return {
     return generate_main_validator_ctx(schema, custom):as_string()
   end,
 }
+
+_M.jsonschema_validator = assert(_M.generate_validator(metaschema))
+
+return _M

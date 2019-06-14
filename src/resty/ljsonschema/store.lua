@@ -73,7 +73,7 @@ function ref_mt:resolve()
     ref.fragment = nil
     schema = self.store:fetch(tostring(ref:normalize()))
 
-    -- no fragment? just retrun the root
+    -- no fragment? just return the root
     if not fragment then
       return schema
     end
@@ -171,6 +171,7 @@ end
 function store_mt:insert(schema)
   local id = url.parse(assert(schema.id, 'id is required'))
   assert(noe(id.fragment), 'schema ids should not have fragments')
+  id.fragment = nil -- drop the potential empty string (allowed by `noe()`)
   schema.id = tostring(id:normalize())
   self.schemas[schema.id] = schema
   local base_id = id

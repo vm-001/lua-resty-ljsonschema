@@ -25,7 +25,7 @@ The preferred way to install this library is to use Luarocks:
 Running the tests also requires the [`cjson`][cjson] library and the Telescope
 test runner:
 
-    git submodule update --init --recrusive
+    git submodule update --init --recursive
     luarocks install net-url
     luarocks install lua-cjson
     luarocks install https://raw.githubusercontent.com/jdesgats/telescope/master/rockspecs/telescope-scm-1.rockspec

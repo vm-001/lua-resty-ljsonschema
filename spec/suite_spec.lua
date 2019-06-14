@@ -75,7 +75,7 @@ local function readjson(path)
 end
 
 local external_schemas = {
-  ['http://json-schema.org/draft-04/schema'] = readjson('spec/jsonschema.json'),
+  ['http://json-schema.org/draft-04/schema'] = require('resty.ljsonschema.metaschema'),
   ['http://localhost:1234/integer.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/integer.json'),
   ['http://localhost:1234/subSchemas.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/subSchemas.json'),
   ['http://localhost:1234/folder/folderInteger.json'] = readjson('spec/JSON-Schema-Test-Suite/remotes/folder/folderInteger.json'),

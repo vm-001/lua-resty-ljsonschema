@@ -23,5 +23,6 @@ build = {
    modules = {
       ["resty.ljsonschema.init"] = "src/resty/ljsonschema/init.lua",
       ["resty.ljsonschema.store"] = "src/resty/ljsonschema/store.lua",
+      ["resty.ljsonschema.metaschema"] = "src/resty/ljsonschema/metaschema.lua",
    }
 }
