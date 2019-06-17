@@ -5,6 +5,7 @@ local pairs = pairs
 local ipairs = ipairs
 local unpack = unpack or table.unpack
 local sformat = string.format
+local srepeat = string.rep
 local mmax, mmodf = math.max, math.modf
 local tconcat = table.concat
 local insert = table.insert
@@ -135,7 +136,7 @@ function codectx_mt:as_string()
       if i ~= self._nparams then insert(res, ', ') end
     end
     insert(res, ')\n')
-    indent = string.rep('  ', self._idx)
+    indent = srepeat('  ', self._idx)
   end
 
   for _, stmt in ipairs(self._body) do
