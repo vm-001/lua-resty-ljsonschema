@@ -1,8 +1,8 @@
 package = "lua-resty-ljsonschema"
-version = "scm-1"
+version = "0.1.0-1"
 source = {
    url = "git://github.com/Tieske/lua-resty-ljsonschema.git",
-   branch = "master",
+   tag = "0.1.0",
 }
 description = {
    summary = "JSON Schema data validator",
