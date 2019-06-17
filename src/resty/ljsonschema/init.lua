@@ -116,14 +116,14 @@ function codectx_mt:stmt(...)
   self._body[#self._body+1] = '\n'
 end
 
-function codectx_mt:_generate()
+function codectx_mt:as_string()
   local res = {}
   local indent = ''
   if self._root == self then
     for _, stmt in ipairs(self._preface) do
       insert(res, indent)
       if getmetatable(stmt) == codectx_mt then
-        insert(res, stmt:_generate())
+        insert(res, stmt:as_string())
       else
         insert(res, stmt)
       end
@@ -141,7 +141,7 @@ function codectx_mt:_generate()
   for _, stmt in ipairs(self._body) do
     insert(res, indent)
     if getmetatable(stmt) == codectx_mt then
-      insert(res, stmt:_generate())
+      insert(res, stmt:as_string())
     else
       insert(res, stmt)
     end
@@ -154,25 +154,12 @@ function codectx_mt:_generate()
   return tconcat(res)
 end
 
-function codectx_mt:_get_loader()
-  return self:_generate()
-end
-
-function codectx_mt:as_string()
-  local buf, n = {}, 0
-  for chunk in self:_get_loader() do
-    n = n+1
-    buf[n] = chunk
-  end
-  return table.concat(buf)
-end
-
-local function debug_dump(self, prefix, err)
+local function debug_dump(self, code, prefix, err)
   local line=1
   print('------------------------------')
   print(prefix .. ' to generate validator: ', (err or ""))
   print('generated code:')
-  print('0001: ' .. self:as_string():gsub('\n', function()
+  print('0001: ' .. code:gsub('\n', function()
     line = line + 1
     return sformat('\n%04d: ', line)
   end))
@@ -184,13 +171,14 @@ local function debug_dump(self, prefix, err)
 end
 
 function codectx_mt:as_func(name, ...)
-  local loader, err = load(self:as_string(), 'jsonschema:' .. (name or 'anonymous'))
+  local chunk = self:as_string()
+  local loaded_chunk, err = load(chunk, 'jsonschema:' .. (name or 'anonymous'))
   if DEBUG then
-    debug_dump(self, loader and "SUCCESS" or "FAILED", err)
+    debug_dump(self, chunk, loaded_chunk and "SUCCESS" or "FAILED", err)
   end
-  if loader then
+  if loaded_chunk then
     local validator
-    validator, err = loader(self._uservalues, ...)
+    validator, err = loaded_chunk(self._uservalues, ...)
     if validator then return validator end
   end
 
