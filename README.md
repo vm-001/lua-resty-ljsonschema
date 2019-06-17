@@ -1,37 +1,32 @@
 ljsonschema: JSON schema validator
 ==================================
 
-This library provides a JSON schema draft 4 validator for Lua. Note that
-even though it uses the JSON Schema semantics, it is neither bound or limited
-to JSON. It can be used to validate saner key/value data formats as well (Lua
-tables, msgpack, bencode, ...).
+This library provides a JSON schema draft 4 validator for OpenResty.
 
 It has been designed to validate incoming data for HTTP APIs so it is decently
 fast: it works by transforming the given schema into a pure Lua function
-on-the-fly. Work is currently in progress to make it as JIT-friendly as
-possible.
+on-the-fly.
+
+This is an updated version of [ljsonschema](https://github.com/jdesgats/ljsonschema)
+by @jdesgats.
 
 Installation
 ------------
 
-This module is pure Lua and does not depend on any particular JSON library
-(`cjson.null` will be used for `null` tokens, but you can override that if
-necessary, see *Advanced usage*)
+It is aimed at use with Openresty. Since it uses the Openresty cjson
+semantics for arrays ([`array_mt`](https://github.com/openresty/lua-cjson#decode_array_with_array_mt))
 
 The preferred way to install this library is to use Luarocks:
 
-    luarocks install ljsonschema
+    luarocks install lua-resty-ljsonschema
 
-Running the tests also requires the [`cjson`][cjson] library and the Telescope
-test runner:
+Running the tests also requires the Busted test framework:
 
     git submodule update --init --recursive
     luarocks install net-url
-    luarocks install lua-cjson
-    luarocks install https://raw.githubusercontent.com/jdesgats/telescope/master/rockspecs/telescope-scm-1.rockspec
-    tsc ./spec/suite.lua
+    luarocks install busted
+    ./rbusted -v -o gtest
 
-[cjson]: https://luarocks.org/modules/luarocks/lua-cjson
 
 Usage
 -----
@@ -39,11 +34,9 @@ Usage
 ### Getting started
 
 ```lua
-local jsonschema = require 'jsonschema'
+local jsonschema = require 'resty.ljsonschema'
 
--- Note: do cache the result of schema compilation as this is a quite
--- expensive process
-local myvalidator = jsonschema.generate_validator {
+local my_schema = {
   type = 'object',
   properties = {
     foo = { type = 'string' },
@@ -51,8 +44,28 @@ local myvalidator = jsonschema.generate_validator {
   },
 }
 
-print(myvalidator{ foo='hello', bar=42 })
+-- Test our schema to be a valid JSONschema draft 4 spec, against
+-- the meta schema:
+assert(jsonschema.jsonschema_validator(my_schema))
+
+-- Note: do cache the result of schema compilation as this is a quite
+-- expensive process
+local my_validator = jsonschema.generate_validator(my_schema)
+
+-- Now validate some data against our spec:
+local my_data = { foo='hello', bar=42 }
+print(my_validator(my_data))
 ```
+
+#### Note:
+
+To validate arrays and objects properly, it is required to set the `array_mt`
+metatable on array tables. This can be easily achieved by calling
+`cjson.decode_array_with_array_mt(true)` before calling `cjson.decode(data)`.
+
+Besides proper validation of objects and arrays, it is also important for
+performance. Without the meta table, the library will traverse the entire
+table in a non-JITable way.
 
 ### Advanced usage
 
@@ -70,7 +83,13 @@ local v = jsonschema.generate_validator(schema, {
     -- defaults to `cjson.null` (if available) or `nil`
     null = null_token,
 
-    -- function called to match patterns, defaults to string.find.
+    -- a metatable used for tagging arrays. Defaults to cjson.array_mt.
+    -- This is required to distinguish objects from arrays in Lua (since
+    -- they both are tables). To fall-back on Lua detection of table contents
+    -- set the value to a boolean `false`.
+    array_mt = metatable_to_tag_arrays,
+
+    -- function called to match patterns, defaults to ngx.re.find.
     -- The JSON schema specification mentions that the validator should obey
     -- the ECMA-262 specification but Lua pattern matching library is much more
     -- primitive than that. Users might want to use PCRE or other more powerful
@@ -102,15 +121,6 @@ difficult to reach. Some of the limitations can be solved using the advanced
 options detailed previously, but some features are not supported (correctly)
 at this time:
 
-* Empty tables and empty arrays are the same from Lua point of view
 * Unicode strings are considered as a stream of bytes (so length checks might
   not behave as expected)
-
-
-On the other hand, some extra features are supported:
-
-* The type `table` can be used to match arrays or objects, it is also much
-  faster than `array` or `object` as it does not involve walking the table to
-  find out if it's a sequence or a hash
-* The type `function` can be used to check for functions
 
