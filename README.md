@@ -160,7 +160,7 @@ at this time:
 
 History
 -------
-### 0.3 (xx)
+### 0.3 (18-dec-2019)
 
  - fix: use a table instead of local variables to work around the limitation of
    a maximum of 200 local variables, which is being hit with complex schemas.
