@@ -158,3 +158,28 @@ at this time:
 * Unicode strings are considered as a stream of bytes (so length checks might
   not behave as expected)
 
+History
+-------
+### 0.3 (xx)
+
+ - fix: use a table instead of local variables to work around the limitation of
+   a maximum of 200 local variables, which is being hit with complex schemas.
+
+### 0.2 (21-jul-2019)
+
+ - feat: added automatic coercion option
+ - refactor: remove all coroutine calls (by @davidor)
+ - feat: add function to validate schemas against the jsonschema meta-schema
+ 
+### 0.1 (13-jun-2019)
+
+ - fix: use PCRE regex if available instead of Lua patterns (better jsonschema
+   compliance)
+ - fix: deal with broekn coroutine override in OpenResty (by @jdesgats)
+ - move array/object validation over to OpenResty based CJSON implementation
+   (using the `array_mt`)
+ - fix: schema with only 'required' was not validated at all
+ - updated testsuite to use Busted
+ - fix: quoting/escaping
+
+### 7-Jun-2019 Forked from https://github.com/jdesgats/ljsonschema 
