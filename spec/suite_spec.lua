@@ -100,7 +100,7 @@ describe("[JSON schema Draft 4]", function()
           local validator
 
           lazy_setup(function()
-            local val, err = assert(jsonschema.generate_validator(schema, options))
+            local val = assert(jsonschema.generate_validator(schema, options))
             assert.is_function(val)
             validator = val
             package.loaded.valcode = jsonschema.generate_validator_code(schema, options)
