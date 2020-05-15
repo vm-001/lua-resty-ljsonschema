@@ -160,6 +160,12 @@ at this time:
 
 History
 -------
+
+### 1.0 (15-may-2020)
+
+ - fix: using a string-key containing only numbers would fail because it was
+   automatically converted to a number while looking up references.
+
 ### 0.3 (18-dec-2019)
 
  - fix: use a table instead of local variables to work around the limitation of
