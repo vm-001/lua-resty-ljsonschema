@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/Tieske/lua-resty-ljsonschema.svg?branch=master)](https://travis-ci.com/Tieske/lua-resty-ljsonschema)
+
 ljsonschema: JSON schema validator
 ==================================
 
@@ -164,7 +166,7 @@ History
 ### 1.0.x (unreleased)
  - fix: if a `schema.pattern` clause contained a `%` then the generated code
    for error mesages (invoking `string.format`) would fail because it tried
-   to substitute it (assuming it to be a format specifier). `%` is now properly 
+   to substitute it (assuming it to be a format specifier). `%` is now properly
    escaped.
 
 ### 1.0 (15-may-2020)
@@ -182,7 +184,7 @@ History
  - feat: added automatic coercion option
  - refactor: remove all coroutine calls (by @davidor)
  - feat: add function to validate schemas against the jsonschema meta-schema
- 
+
 ### 0.1 (13-jun-2019)
 
  - fix: use PCRE regex if available instead of Lua patterns (better jsonschema
@@ -194,4 +196,4 @@ History
  - updated testsuite to use Busted
  - fix: quoting/escaping
 
-### 7-Jun-2019 Forked from https://github.com/jdesgats/ljsonschema 
+### 7-Jun-2019 Forked from https://github.com/jdesgats/ljsonschema
