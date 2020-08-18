@@ -209,7 +209,7 @@ at this time:
 History
 -------
 
-### 1.0.x (unreleased)
+### 1.1.0 (18-aug-2020)
  - fix: if a `schema.pattern` clause contained a `%` then the generated code
    for error messages (invoking `string.format`) would fail because it tried
    to substitute it (assuming it to be a format specifier). `%` is now properly
