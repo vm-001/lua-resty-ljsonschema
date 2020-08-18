@@ -67,6 +67,11 @@ local supported = {
   'spec/JSON-Schema-Test-Suite/tests/draft4/refRemote.json',
   'spec/JSON-Schema-Test-Suite/tests/draft4/definitions.json',
   'spec/extra/ref.json',
+  -- format
+  'spec/extra/format/date.json',
+  'spec/extra/format/date-time.json',
+  'spec/extra/format/time.json',
+  'spec/extra/format/unknown.json',
   -- Lua extensions
   'spec/extra/table.json',
   'spec/extra/function.lua',
