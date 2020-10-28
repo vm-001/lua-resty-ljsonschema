@@ -209,7 +209,7 @@ at this time:
 History
 -------
 
-### 1.1.x (unreleased)
+### 1.1.1 (28-Oct-2020)
  - fix: fixes an error in the `maxItems` error message (#7)
  - fix: date-time validation would error out on bad input (#10)
  - improvement: anyOf failures now list what failed (#9)
