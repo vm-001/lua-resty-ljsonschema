@@ -1,5 +1,5 @@
 local package_name = "lua-resty-ljsonschema"
-local package_version = "scm"
+local package_version = "1.1.2"
 local rockspec_revision = "1"
 local github_account_name = "Tieske"
 local github_repo_name = package_name

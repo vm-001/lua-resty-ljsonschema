@@ -211,6 +211,10 @@ History
 
 Versioning is strictly based on Semantic Versioning ([SemVer](https://semver.org/)).
 
+### 1.1.2 (30-Apr-2021)
+ - fix: fixes an issue where properties called "id" were mistaken for schema ids
+   (#13)
+
 ### 1.1.1 (28-Oct-2020)
  - fix: fixes an error in the `maxItems` error message (#7)
  - fix: date-time validation would error out on bad input (#10)
