@@ -211,6 +211,9 @@ History
 
 Versioning is strictly based on Semantic Versioning ([SemVer](https://semver.org/)).
 
+### 1.1.3 (8-Dec-2022)
+ - fix: reference properties can start with an "_" (#15)
+
 ### 1.1.2 (30-Apr-2021)
  - fix: fixes an issue where properties called "id" were mistaken for schema ids
    (#13)
