@@ -210,12 +210,7 @@ function store_mt:insert(schema)
 
     self:ctx(s).base = schema
     for k, v in pairs(s) do
-      if type(v) == 'table' and
-        (type(k) == 'number' or (
-          k ~= 'enum' and
-          k:sub(1,1) ~= '_'
-        ))
-      then
+      if type(v) == 'table' and (type(k) == 'number' or (k ~= 'enum')) then
         table.insert(p, k)
         walk(v, p)
         table.remove(p)
