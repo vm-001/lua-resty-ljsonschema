@@ -73,5 +73,28 @@
                 "valid": true
             }
         ]
+    },
+    {
+        "description": "test",
+        "schema": {
+            "properties": {
+                "_bar": {
+                    "$ref": "#/definitions/foo"
+                }
+            },
+            "definitions": {
+               "foo": {
+                  "type": "integer"
+               }
+            },
+            "required": [ "_bar" ]
+        },
+        "tests": [
+            {
+                "description": "ok",
+                "data": { "_bar": 1 },
+                "valid": true
+            }
+        ]
     }
 ]
