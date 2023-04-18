@@ -853,7 +853,7 @@ generate_validator = function(ctx, schema)
       end
     end
     ctx:stmt(') then')
-    ctx:stmt('  return false, "matches non of the enum values"')
+    ctx:stmt('  return false, "matches none of the enum values"')
     ctx:stmt('end')
   end
 
