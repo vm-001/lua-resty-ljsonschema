@@ -225,7 +225,7 @@ Versioning is strictly based on Semantic Versioning ([SemVer](https://semver.org
 - commit changes as `release X.Y.Z`, using `git add rockspecs/ && git commit -a`
 - tag the commit; `git tag X.Y.Z`
 - push the commit and the tag; `git push && git push --tags`
-- upload rockspec; `luarocks upload rockspecs/lua-resty-ljsonschema-X.Y.Z-1.rockspec api-key=abcdef`
+- upload rockspec; `luarocks upload rockspecs/lua-resty-ljsonschema-X.Y.Z-1.rockspec --api-key=abcdef`
 
 ### 1.1.4 (25-Apr-2023)
 - fix: typo in error message
